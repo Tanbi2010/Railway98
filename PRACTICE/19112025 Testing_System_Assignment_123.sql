@@ -289,11 +289,10 @@ SELECT DepartmentID FROM Department WHERE DepartmentName="Sale";
 
 -- QUESTION 4: lấy ra thông tin account có full name dài nhất
 -- SELECT * FROM `Account` WHERE LENGTH(FullName) = (SELECT MAX(LENGTH(FullName)) FROM `Account`);
-SELECT * FROM `Account` WHERE LENGTH(FullName) = ANY (SELECT MAX(LENGTH(FullName)) FROM `Account`);
-
+SELECT * FROM `Account` WHERE LENGTH(FullName) = (SELECT MAX(LENGTH(FullName)) FROM `Account`);
 
 -- QUESTION 5: Lấy ra thông tin account có full name dài nhất và thuộc phòng ban có id = 3
-
+SELECT * FROM `Account` WHERE LENGTH(FullName) = (SELECT MAX(LENGTH(FullName)) FROM `Account`) AND DepartmentID=3 ; 
 
 -- Question 6: Lấy ra tên group đã tham gia trước ngày 20/12/2019 
 SELECT * FROM `Group` WHERE CreateDate < '2019/12/20';
@@ -314,7 +313,7 @@ SELECT count(Username) FROM `Account` WHERE DepartmentID=2;
 SELECT * FROM `Account` WHERE 'D%o';
 
 -- Question 12: Xóa tất cả các exam được tạo trước ngày 20/12/2019
-DELETE FROM Exam WHERE CreateDate < '2019/12/20'; -- NOT SURE WHY NO HAVING ANSWER
+DELETE FROM Exam WHERE CreateDate < '2019/12/20'; 
 
 -- Question 13: Xóa tất cả các question có nội dung bắt đầu bằng từ "câu hỏi" 
 DELETE FROM Question WHERE Content LIKE 'Câu hỏi%';
@@ -331,3 +330,16 @@ SET GroupID=4
 WHERE AccountID=5;
 
 SELECT * FROM GroupAccount;
+
+-- TRONG SUBQUERY/ CÂU LỆNH HƠI RƯỜM RÀ TRONG CÂU LỆNH CHANGE
+-- CÓ THỂ TÁCH SUBQUERY THÌ CÓ THỂ TẠO RA CÁI BẢNG CTE (BẢNG TẠM) 
+
+WITH cte_MaxlengthFullname AS( 
+SELECT MAX(LENGtH(FullName)) Max_FullName FROM `Account`)
+SELECT * FROM `Account`
+WHERE length(FullName) = (SELECT Max_FullName FROM cte_MaxlengthFullname);
+
+WITH maxlenghtFN AS (SELECT max(length(FullName)) Max_FullName FROM `Account`)
+SELECT * FROM `Account`
+WHERE length(FullName)= (SELECT Max_FullName FROM maxlenghtFN);
+

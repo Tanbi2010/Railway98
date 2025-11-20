@@ -359,7 +359,3 @@ select max(Point_Student) from Student where Subject_Name='Sql';
 select max(Point_Student) from Student where Subject_Name='Java';
 -- tìm số lớn nhất của môn spring
 select max(Point_Student) from Student where Subject_Name='Spring';
-
-
-
--- bài tập: testing 3 + bài tập mở rộng 1,2,3,4

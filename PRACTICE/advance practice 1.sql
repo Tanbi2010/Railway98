@@ -12,9 +12,10 @@ Gender					ENUM('Male', 'Female', 'Unknown') NOT NULL,
 ET_IQ					TINYINT UNSIGNED CHECK (ET_IQ BETWEEN 0 AND 20) NOT NULL,
 ET_Gmath				TINYINT UNSIGNED CHECK (ET_Gmath BETWEEN 0 AND 20) NOT NULL,
 ET_English				TINYINT UNSIGNED CHECK (ET_English BETWEEN 0 AND 50) NOT NULL,
-Training_Class			NVARCHAR(150) NOT NULL,
+Training_Class			NVARCHAR(150) NOT NULL ,
 Evaluation_Notes		NVARCHAR(150) NOT NULL
 );
+
 
 -- Question 2: Thêm ít nhất 10 bản ghi vào table
 INSERT INTO Trainee ( 		Full_Name, 			Birth_Date, 			Gender, ET_IQ, 	ET_Gmath, 	ET_English, Training_Class, Evaluation_Notes)
@@ -40,7 +41,7 @@ VALUES
 
 
 -- Question 4: Viết lệnh để lấy ra tất cả các thực tập sinh đã vượt qua bài test đầu vào, và sắp xếp theo ngày sinh. Điểm ET_IQ >=12, ET_Gmath>=12, ET_English>=20
-USE Fresher;
+
 SELECT * FROM Trainee 
 WHERE
 (ET_IQ >= 12 AND ET_Gmath >=12 AND ET_English >=20)
@@ -92,3 +93,5 @@ DELETE FROM Trainee WHERE TraineeID = 5;
 DELETE FROM Trainee WHERE ET_IQ <=15 AND ET_Gmath <=15;
 
 -- Question 17: Xóa thực tập sinh quá 30 tuổi.
+
+SELECT * FROM Trainee;
