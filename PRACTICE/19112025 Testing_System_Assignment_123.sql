@@ -304,7 +304,7 @@ SELECT * FROM	Question WHERE CreatorID >= 4;
 SELECT `Code` FROM Exam WHERE Duration > 60 AND CreateDate < '2019/12/20';
 
 -- Question 9: Lấy ra 5 group được tạo gần đây nhất
-SELECT * FROM Testing_System_Assignment_1 WHERE ...; -- DON'T KNOW HOW TO DO
+
 
 -- Question 10: Đếm số nhân viên thuộc department có id = 2 
 SELECT count(Username) FROM `Account` WHERE DepartmentID=2;
@@ -342,4 +342,8 @@ WHERE length(FullName) = (SELECT Max_FullName FROM cte_MaxlengthFullname);
 WITH maxlenghtFN AS (SELECT max(length(FullName)) Max_FullName FROM `Account`)
 SELECT * FROM `Account`
 WHERE length(FullName)= (SELECT Max_FullName FROM maxlenghtFN);
+
+
+-- 22/11/2025 TESTING_SYSTEM ASSIGNMENT 4
+
 
