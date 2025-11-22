@@ -93,5 +93,5 @@ DELETE FROM Trainee WHERE TraineeID = 5;
 DELETE FROM Trainee WHERE ET_IQ <=15 AND ET_Gmath <=15;
 
 -- Question 17: Xóa thực tập sinh quá 30 tuổi.
-
+DELETE FROM Trainee WHERE TIMESTAMPDIFF(YEAR, Birth_Date, CURDATE()) > 30; -- CÂU LỆNH CHO ĐẾM TUỔI LÀ TIMESTAMPDIFF(YEAR, tên trường chứa ngày sinh, CURDATE)
 SELECT * FROM Trainee;
