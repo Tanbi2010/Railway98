@@ -28,7 +28,7 @@ CREATE TABLE `Account`(
     Email					VARCHAR(50) NOT NULL UNIQUE KEY,
     Username				VARCHAR(50) NOT NULL UNIQUE KEY,
     FullName				NVARCHAR(50) NOT NULL,
-    DepartmentID 			TINYINT UNSIGNED NOT NULL,
+    DepartmentID 			TINYINT UNSIGNED,
     PositionID				TINYINT UNSIGNED NOT NULL,
     CreateDate				DATETIME DEFAULT NOW(),
     FOREIGN KEY(DepartmentID) REFERENCES Department(DepartmentID) ON DELETE CASCADE,
@@ -359,3 +359,53 @@ select max(Point_Student) from Student where Subject_Name='Sql';
 select max(Point_Student) from Student where Subject_Name='Java';
 -- tìm số lớn nhất của môn spring
 select max(Point_Student) from Student where Subject_Name='Spring';
+
+
+-- 22/11/2025
+-- INNER JOIN: CHO PHÉP NỐI DỮ LIỆU TỪ 1 BẢNG CÙNG VỚI BẢNG KHÁC
+SELECT * FROM `Account`;
+SELECT * FROM `Account` a 
+INNER JOIN Department d ON a.DepartmentID = d.DepartmentID;
+
+SELECT a.AccountID, a.Email, a.Username, a.DepartmentID FROM `Account` a 
+INNER JOIN Department d ON a.DepartmentID = d.DepartmentID; -- lấy ra bảng mà có điều kiện chung muốn lấy 
+
+-- LEFT JOIN: cho phép lấy bảng log cả phần không chung của A và phần chung của B 
+
+SELECT a.AccountID, a.Email, a.Username, a.DepartmentID FROM `Account` a 
+LEFT JOIN Department d ON a.DepartmentID = d.DepartmentID;
+
+SELECT * FROM `Account` a 
+LEFT JOIN Department d ON a.DepartmentID = d.DepartmentID;
+
+-- RIGHT JOIN
+
+SELECT * FROM `Account` a 
+RIGHT JOIN Department d ON a.DepartmentID = d.DepartmentID;
+
+-- LEFT EXCLUDING JOIN
+SELECT * FROM `Account` a
+LEFT JOIN Department d ON a.DepartmentID = d.DepartmentID WHERE d.DepartmentID IS NULL;
+
+-- RIGHT EXCLUDING JOIN
+SELECT * FROM `Account` a
+RIGHT JOIN Department d ON a.DepartmentID = d.DepartmentID WHERE a.DepartmentID IS NULL;
+
+-- FULL OUTER JOIN
+-- CÁCH 1
+SELECT * FROM `Account` a LEFT JOIN Department d ON a.DepartmentID = d.DepartmentID
+UNION 
+SELECT * FROM `Account` a
+RIGHT JOIN Department d ON a.DepartmentID = d.DepartmentID WHERE a.DepartmentID IS NULL;
+-- CÁCH 2
+SELECT * FROM `Account` a INNER JOIN Department d ON a.DepartmentID = d.DepartmentID
+UNION
+SELECT * FROM `Account` a LEFT JOIN Department d ON a.DepartmentID = d.DepartmentID WHERE d.DepartmentID IS NULL
+UNION
+SELECT * FROM `Account` a RIGHT JOIN Department d ON a.DepartmentID = d.DepartmentID WHERE a.DepartmentID IS NULL;
+
+
+-- khóa ngoại: sử dụng ON DELETE CASCADE, (giá trị bị xóa ở bảng cha thì log tương ứng ở bản con sẽ bị xóa) 
+-- ON DELETE SET NULL (giá trị bị xóa ở bảng cha thì giá trị tương ứng ở bản con sẽ biến thành null => khi tạo bảng attitude phải để chế độ NULL)
+-- ON UPDATE CASCADE (giá trị được điều chỉnh ở bảng cha thì log tương ứng ở bản con sẽ bị chỉnh sửa tương tự)
+-- ON UPDATE SET NULL (giá trị được update ở bảng cha thì giá trị tương ứng ở bản con sẽ biến thành null => khi tạo bảng attitude phải để chế độ NULL)

@@ -1,5 +1,7 @@
 -- BÀI 4 20112025
+DROP DATABASE IF EXISTS Student;
 CREATE DATABASE Student;
+
 DROP TABLE IF EXISTS Student;
 CREATE TABLE `Student`(
      Id		                    TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -76,7 +78,6 @@ UPDATE Student SET Point_Student = 8 WHERE Subject_Name= 'Sql';
 
 -- XÓA DỮ LIỆU DELETE FROM ... WHERE
 DELETE FROM Student WHERE Id=1;
-
 
 
 
