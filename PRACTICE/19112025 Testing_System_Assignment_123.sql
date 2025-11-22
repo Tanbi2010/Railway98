@@ -345,5 +345,33 @@ WHERE length(FullName)= (SELECT Max_FullName FROM maxlenghtFN);
 
 
 -- 22/11/2025 TESTING_SYSTEM ASSIGNMENT 4
+-- Exercise 1: Join 
+-- Question 1: Viết lệnh để lấy ra danh sách nhân viên và thông tin phòng ban của họ
+SELECT * FROM `Account` a
+INNER JOIN 
+Department d ON a.departmentID= d.departmentID;
+SELECT * FROM `Account`;
+-- Question 2: Viết lệnh để lấy ra thông tin các account được tạo sau ngày 20/12/2010
 
+-- WITH CTE_right_require AS (
+-- SELECT CreateDate FROM `Account` GROUP BY CreateDate > 20/12/2010
+-- )
+SELECT * FROM `Account` a WHERE CreateDate > 20/12/2010;
 
+-- cách 1
+WITH cte AS (
+SELECT * FROM `Account` WHERE CreateDate > 20/12/2010)
+
+SELECT * FROM cte a
+ JOIN Department d ON a.departmentID= d.departmentID 
+ JOIN position p ON a.positionID= p.positionID;
+ 
+ -- cách 2
+ SELECT * FROM `Account` a 
+ JOIN department d ON a.departmentID = d.departmentID
+ JOIN position p ON a.positionID = p.positionID
+ WHERE CreateDate > 2010-12-20;
+ 
+ SELECT * FROM position;
+
+-- Question 3: Viết lệnh để lấy ra tất cả các developer 
