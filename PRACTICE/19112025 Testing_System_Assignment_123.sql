@@ -391,6 +391,14 @@ SELECT a.departmentID, d.departmentName, count(*) FROM `Account`  a
 INNER JOIN department d ON a.departmentID= d.departmentID
 GROUP BY departmentID HAVING count(*) >=3;
 
+SELECT a.*, d.DepartmentName, count(*) FROM `Account`  a
+INNER JOIN department d ON a.departmentID= d.departmentID
+GROUP BY a.departmentID HAVING count(*) >=3;
+
+SELECT d.*, count(*) FROM `Account`  a -- lấy thông tin từ bảng department
+INNER JOIN department d ON a.departmentID= d.departmentID
+GROUP BY departmentID HAVING count(*) >=3;
+
 -- Question 5: Viết lệnh để lấy ra danh sách câu hỏi được sử dụng trong đề thi nhiều nhất 
 WITH cte_question AS (
 SELECT QuestionID, count(*) sl FROM ExamQuestion 
@@ -398,11 +406,12 @@ GROUP BY QuestionID
 )
 
 SELECT ex.QuestionID, q.Content,  count(*) FROM ExamQuestion ex 
-INNER JOIN Question q ON q.QuestionID = ex.QuestionID
+INNER JOIN Question q ON ex.QuestionID = q.QuestionID
 GROUP BY ex.QuestionID 
 HAVING count(*)= (SELECT max(sl) FROM cte_question);
 
 -- 6: Thông kê mỗi category Question được sử dụng trong bao nhiêu Question
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SELECT * FROM Department;
 SELECT * FROM Position;
@@ -414,16 +423,16 @@ SELECT * FROM CategoryQuestion;
 SELECT * FROM Question;
 SELECT * FROM Answer;
 SELECT * FROM Exam;
-SELECT * FROM ExamQuestion;
+SELECT * FROM ExamQuesstion;
 
 SELECT  qt.categoryID, cq.CategoryName, count(*) sl FROM Question qt
 INNER JOIN CategoryQuestion cq ON qt.categoryID =cq.categoryID
 GROUP BY qt.CategoryID;
 
 -- Question 7: Thông kê mỗi Question được sử dụng trong bao nhiêu Exam 
-SELECT eq.QuestionID, q.Content, count(*) 'number' FROM ExamQuestion eq 
-RIGHT JOIN Question q ON q.QuestionID=eq.QuestionID
-GROUP BY eq.QuestionID;
+SELECT eq.QuestionID, q.Content, count(*) 'number' FROM  Question q 
+RIGHT JOIN  ExamQuestion eq ON q.QuestionID=eq.QuestionID
+GROUP BY q.QuestionID;
 
 SELECT q.QuestionID, q.Content , count(*) FROM examquestion eq
 RIGHT JOIN question q ON q.QuestionID = eq.QuestionID
