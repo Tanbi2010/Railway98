@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS Testing_System_Assignment_1;
-CREATE DATABASE Testing_System_Assignment_1;
-USE Testing_System_Assignment_1;
+DROP DATABASE IF EXISTS Testing_System_Assignment_44;
+CREATE DATABASE Testing_System_Assignment_4;
+USE Testing_System_Assignment_4;
 -- create Table 1 Department
 DROP TABLE IF EXISTS Department;
 CREATE TABLE Department (
@@ -268,89 +268,20 @@ VALUES
 					(	8	,		10		), 
 					(	9	,		9		), 
 					(	10	,		8		); 
-                    
--- luyện tập ngày 19/11/2025 (sử dụng hàm SELECT * FROM...)
 
--- QUESTION 2: LẤY RA TẤT CẢ CÁC PHÒNG BAN
-
-
--- QUESTION 3: LẤY RA ID CỦA PHÒNG BAN 'SALE'
-SELECT DepartmentID FROM Department WHERE DepartmentName="Sale";
-
--- QUESTION 4: lấy ra thông tin account có full name dài nhất
--- SELECT * FROM `Account` WHERE LENGTH(FullName) = (SELECT MAX(LENGTH(FullName)) FROM `Account`);
-SELECT * FROM `Account` WHERE LENGTH(FullName) = (SELECT MAX(LENGTH(FullName)) FROM `Account`);
-
--- QUESTION 5: Lấy ra thông tin account có full name dài nhất và thuộc phòng ban có id = 3
-SELECT * FROM `Account` WHERE LENGTH(FullName) = (SELECT MAX(LENGTH(FullName)) FROM `Account`) AND DepartmentID=3 ; 
-
--- Question 6: Lấy ra tên group đã tham gia trước ngày 20/12/2019 
-SELECT * FROM `Group` WHERE CreateDate < '2019/12/20';
-
--- Question 7: Lấy ra ID của question có >= 4 câu trả lời
-SELECT * FROM	Question WHERE CreatorID >= 4;
-
--- Question 8: Lấy ra các mã đề thi có thời gian thi >= 60 phút và được tạo trước ngày 20/12/2019 
-SELECT `Code` FROM Exam WHERE Duration > 60 AND CreateDate < '2019/12/20';
-
--- Question 9: Lấy ra 5 group được tạo gần đây nhất
-
-
--- Question 10: Đếm số nhân viên thuộc department có id = 2 
-SELECT count(Username) FROM `Account` WHERE DepartmentID=2;
-
--- Question 11: Lấy ra nhân viên có tên bắt đầu bằng chữ "D" và kết thúc bằng chữ "o" 
-SELECT * FROM `Account` WHERE 'D%o';
-
--- Question 12: Xóa tất cả các exam được tạo trước ngày 20/12/2019
-DELETE FROM Exam WHERE CreateDate < '2019/12/20'; 
-
--- Question 13: Xóa tất cả các question có nội dung bắt đầu bằng từ "câu hỏi" 
-DELETE FROM Question WHERE Content LIKE 'Câu hỏi%';
-
--- Question 14: Update thông tin của account có id = 5 thành tên "Nguyễn Bá Lộc" và  email thành loc.nguyenba@vti.com.vn
--- SELECT * FROM `Account`;
-UPDATE  `Account` 
-SET FullName = 'Nguyễn Bá Lộc', Email = 'loc.nguyenba@vti.com.vn'
-WHERE AccountID=5;
-
--- Question 15: update account có id = 5 sẽ thuộc group có id = 4 
-UPDATE GroupAccount 
-SET GroupID=4
-WHERE AccountID=5;
-
-SELECT * FROM GroupAccount;
-
--- TRONG SUBQUERY/ CÂU LỆNH HƠI RƯỜM RÀ TRONG CÂU LỆNH CHANGE
--- CÓ THỂ TÁCH SUBQUERY THÌ CÓ THỂ TẠO RA CÁI BẢNG CTE (BẢNG TẠM) 
-
-WITH cte_MaxlengthFullname AS( 
-SELECT MAX(LENGtH(FullName)) m FROM `Account`)
-
-SELECT * FROM `Account`
-WHERE length(FullName) = (SELECT m FROM cte_MaxlengthFullname);
-
-
-
-WITH maxlenghtFN AS (SELECT max(length(FullName)) Max_FullName FROM `Account`)
-SELECT * FROM `Account`
-WHERE length(FullName)= (SELECT Max_FullName FROM maxlenghtFN);
-
-
--- 22/11/2025 TESTING_SYSTEM ASSIGNMENT 4
--- Exercise 1: Join 
--- Question 1: Viết lệnh để lấy ra danh sách nhân viên và thông tin phòng ban của họ
-SELECT * FROM `Account` a
-INNER JOIN 
-Department d ON a.departmentID= d.departmentID;
+--  Question 1: Viết lệnh để lấy ra danh sách nhân viên và thông tin phòng ban của họ
 SELECT * FROM `Account`;
+
+SELECT * FROM `Account` a
+INNER JOIN Department d ON d.DepartmentID= a.DepartmentID;
+
 -- Question 2: Viết lệnh để lấy ra thông tin các account được tạo sau ngày 20/12/2010
+SELECT * FROM `Account` a
+JOIN Department d ON d.DepartmentID= a.DepartmentID
+JOIN Position p ON p.PositionID=a.PositionID
+WHERE CreateDate > 20/12/2010;
 
--- WITH CTE_right_require AS (
--- SELECT CreateDate FROM `Account` GROUP BY CreateDate > 20/12/2010
--- )
-SELECT * FROM `Account` a WHERE CreateDate > 20/12/2010;
-
+-- Question 3: Viết lệnh để lấy ra tất cả các developer  
 SELECT * FROM Department;
 SELECT * FROM Position;
 SELECT * FROM `Account`;
@@ -362,69 +293,39 @@ SELECT * FROM Question;
 SELECT * FROM Answer;
 SELECT * FROM Exam;
 SELECT * FROM ExamQuestion;
--- cách 1
-WITH cte AS (
-SELECT * FROM `Account` WHERE CreateDate > 20/12/2010)
 
-SELECT * FROM cte a
- JOIN Department d ON a.departmentID= d.departmentID 
- JOIN position p ON a.positionID= p.positionID;
- 
- -- cách 2
- SELECT * FROM `Account` a 
- JOIN department d ON a.departmentID = d.departmentID
- JOIN position p ON a.positionID = p.positionID
- WHERE CreateDate > 2010-12-20;
- 
- SELECT * FROM position;
+SELECT * FROM `GroupAccount` ga
+INNER JOIN `Account` a ON a.AccountID= ga.AccountID
+WHERE GroupID=2;
 
--- Question 3: Viết lệnh để lấy ra tất cả các developer 
-
-SELECT * FROM `GroupAccount`ga
-JOIN `Group` g ON ga.groupID=g.groupID
-JOIN `Account` a ON a.AccountID= ga.AccountID
-WHERE ga.groupID=2;
+SELECT * FROM `Account` a
+INNER JOIN `Position` p ON p.PositionID = a.PositionID
+WHERE a.PositionID=1;
 
 -- Question 4: Viết lệnh để lấy ra danh sách các phòng ban có >=3 nhân viên 
-
-SELECT a.departmentID, d.departmentName, count(*) FROM `Account`  a
-INNER JOIN department d ON a.departmentID= d.departmentID
-GROUP BY departmentID HAVING count(*) >=3;
+SELECT a.DepartmentID, count(*), d.DepartmentName  FROM `Account` a
+INNER JOIN Department d ON d.DepartmentID= a.DepartmentID
+GROUP BY a.DepartmentID HAVING count(*) >=3;
 
 -- Question 5: Viết lệnh để lấy ra danh sách câu hỏi được sử dụng trong đề thi nhiều nhất 
-WITH cte_question AS (
-SELECT QuestionID, count(*) sl FROM ExamQuestion 
-GROUP BY QuestionID
+WITH CTE_QUESTION_MAX AS(
+SELECT count(*) slquest FROM ExamQuestion a
+GROUP BY a.QuestionID
 )
-
-SELECT ex.QuestionID, q.Content,  count(*) FROM ExamQuestion ex 
+SELECT ex.QuestionID,count(*) FROM ExamQuestion ex 
 INNER JOIN Question q ON q.QuestionID = ex.QuestionID
-GROUP BY ex.QuestionID 
-HAVING count(*)= (SELECT max(sl) FROM cte_question);
+GROUP BY ex.QuestionID HAVING count(*)= (SELECT max(slquest) FROM CTE_QUESTION_MAX);
 
--- 6: Thông kê mỗi category Question được sử dụng trong bao nhiêu Question
+-- Question 6: Thông kê mỗi category Question được sử dụng trong bao nhiêu Question
+SELECT cq.CategoryID, cq.CategoryName, count(cq.CategoryID) times FROM CategoryQuestion cq
+LEFT JOIN Question q ON q.CategoryID = cq.CategoryID
+GROUP BY cq.CategoryID;
 
-SELECT * FROM Department;
-SELECT * FROM Position;
-SELECT * FROM `Account`;
-SELECT * FROM `Group`;
-SELECT * FROM `GroupAccount`;
-SELECT * FROM TypeQuestion;
-SELECT * FROM CategoryQuestion;
-SELECT * FROM Question;
-SELECT * FROM Answer;
-SELECT * FROM Exam;
-SELECT * FROM ExamQuestion;
+-- Question 7: Thông kê mỗi Question được sử dụng trong bao nhiêu Exam
+SELECT q.QuestionID, q.Content, count(e.QuestionID) times FROM ExamQuestion e
+RIGHT JOIN Question q ON q.QuestionID = e.QuestionID
+GROUP BY e.QuestionID;
 
-SELECT  qt.categoryID, cq.CategoryName, count(*) sl FROM Question qt
-INNER JOIN CategoryQuestion cq ON qt.categoryID =cq.categoryID
-GROUP BY qt.CategoryID;
-
--- Question 7: Thông kê mỗi Question được sử dụng trong bao nhiêu Exam 
-SELECT eq.QuestionID, q.Content, count(*) 'number' FROM ExamQuestion eq 
-RIGHT JOIN Question q ON q.QuestionID=eq.QuestionID
-GROUP BY eq.QuestionID;
-
-SELECT q.QuestionID, q.Content , count(*) FROM examquestion eq
+SELECT q.QuestionID, q.Content , count(eq.QuestionID) FROM examquestion eq
 RIGHT JOIN question q ON q.QuestionID = eq.QuestionID
 GROUP BY q.QuestionID;
