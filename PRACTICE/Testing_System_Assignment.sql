@@ -413,6 +413,18 @@ HAVING count(*)= (SELECT max(sl) FROM cte_question);
 -- 6: Thông kê mỗi category Question được sử dụng trong bao nhiêu Question
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
+SELECT  qt.categoryID, cq.CategoryName, count(*) sl FROM Question qt
+INNER JOIN CategoryQuestion cq ON qt.categoryID =cq.categoryID
+GROUP BY qt.CategoryID;
+
+USE `testing_system_assignment_1`;
+-- Question 7: Thông kê mỗi Question được sử dụng trong bao nhiêu Exam 
+
+SELECT eq.QuestionID, count(eq.QuestionID) FROM ExamQuestion eq
+LEFT JOIN Exam e ON eq.examID=e.examID
+GROUP BY eq.QuestionID;
+
+-- Question 8: Lấy ra Question có nhiều câu trả lời nhất 
 SELECT * FROM Department;
 SELECT * FROM Position;
 SELECT * FROM `Account`;
@@ -423,17 +435,219 @@ SELECT * FROM CategoryQuestion;
 SELECT * FROM Question;
 SELECT * FROM Answer;
 SELECT * FROM Exam;
-SELECT * FROM ExamQuesstion;
+SELECT * FROM ExamQuestion;
 
-SELECT  qt.categoryID, cq.CategoryName, count(*) sl FROM Question qt
-INNER JOIN CategoryQuestion cq ON qt.categoryID =cq.categoryID
-GROUP BY qt.CategoryID;
+-- Question 9: Thống kê số lượng account trong mỗi group  
+SELECT ga.GroupID, count(ga.AccountID), g.GroupName  FROM `GroupAccount` ga
+JOIN `Group` g ON ga.GroupID=g.GroupID
+GROUP BY ga.GroupID;
 
--- Question 7: Thông kê mỗi Question được sử dụng trong bao nhiêu Exam 
-SELECT eq.QuestionID, q.Content, count(*) 'number' FROM  Question q 
-RIGHT JOIN  ExamQuestion eq ON q.QuestionID=eq.QuestionID
-GROUP BY q.QuestionID;
+-- Question 10: Tìm chức vụ có ít người nhất 
+WITH cte_min_number AS (
+SELECT PositionID, count(PositionID) mn FROM `Account`
+GROUP BY PositionID
+)
+SELECT p.PositionID, p.PositionName , count(a.PositionID) 'amount' FROM `Account` a
+JOIN Position p ON a.PositionID=p.PositionID
+GROUP BY a.PositionID
+HAVING count(a.PositionID)= (SELECT min(mn) FROM  cte_min_number);
 
-SELECT q.QuestionID, q.Content , count(*) FROM examquestion eq
-RIGHT JOIN question q ON q.QuestionID = eq.QuestionID
-GROUP BY q.QuestionID;
+-- Question 11: Thống kê mỗi phòng ban có bao nhiêu dev, test, scrum master, PM 
+SELECT a.DepartmentID, d.DepartmentName, p.PositionName, count(a.PositionID) amount FROM `Account` a 
+JOIN Position p ON a.PositionID=p.PositionID
+JOIN Department d ON d.DepartmentID=a.DepartmentID
+GROUP BY a.DepartmentID, p.PositionID; -- why we need to group by two fields
+
+-- Question 12: Lấy thông tin chi tiết của câu hỏi bao gồm: thông tin cơ bản của question, loại câu hỏi, ai là người tạo ra câu hỏi, câu trả lời là gì, … 
+SELECT q.QuestionID,q.Content,tq.TypeName,cq.CategoryName, a.FullName,an.AnswerID FROM Question q
+JOIN TypeQuestion tq ON q.TypeID=tq.TypeID
+JOIN CategoryQuestion cq ON cq.CategoryID=q.CategoryID
+JOIN `Account` a ON q.CreatorID=a.AccountID
+JOIN Answer an ON an.QuestionID=q.QuestionID;
+
+-- - Question 12: Lấy thông tin chi tiết của câu hỏi bao gồm: thông tin cơ bản của question, loại câu hỏi, ai là người tạo ra câu hỏi, câu trả lời là gì, … 
+
+SELECT * FROM Department;
+SELECT * FROM Position;
+SELECT * FROM `Account`;
+SELECT * FROM `Group`;
+SELECT * FROM `GroupAccount`;
+SELECT * FROM TypeQuestion;
+SELECT * FROM CategoryQuestion;
+SELECT * FROM Question;
+SELECT * FROM Answer;
+SELECT * FROM Exam;
+SELECT * FROM ExamQuestion;
+
+SELECT q.Content, q.CreateDate,cq.CategoryName, a.FullName, an.Content FROM Question q
+JOIN CategoryQuestion cq ON cq.CategoryID=q.CategoryID
+JOIN TypeQuestion tq ON tq.TypeID=q.TypeID
+JOIN `Account` a ON q.CreatorID=a.AccountID
+JOIN Answer an ON an.QuestionID=q.QuestionID;
+
+-- 25/11/2025 tìm hiểu về view trong mysql
+-- CREATE OR REPLACE VIEW name_view vw_AccountList AS
+-- câu lệnh tạo ra dữ liệu mà mình lấy và muốn lưu trữ;
+
+CREATE OR REPLACE VIEW vw_min_number_department AS
+WITH cte_min_number AS (
+SELECT PositionID, count(PositionID) mn FROM `Account`
+GROUP BY PositionID
+)
+SELECT p.PositionID, p.PositionName , count(a.PositionID) 'amount' FROM `Account` a
+JOIN Position p ON a.PositionID=p.PositionID
+GROUP BY a.PositionID
+HAVING count(a.PositionID)= (SELECT min(mn) FROM  cte_min_number);
+
+-- muốn xóa bảng view giả này thì sử dụng câu lệnh drop bình thường: DROP VIEW view_name;
+-- muốn lấy dữ liệu từ view giả: SELECT * FROM VIEW;
+-- ƯU ĐIỂM
+-- => hạn chế truy cập vào những bảng dữ liệu chính
+-- tạo ra view muốn lấy hoặc xem các thông tin cơ bản mà có thể cung cấp, thì tạo ra các bảng view
+-- và có thể cung cấp cho admin khác để họ xem mà ko phải tương tác nhiều đến cơ sở dữ liệu, bảo mật và đảm bảo an toàn cho dữ liệu
+
+-- NHƯỢC ĐIỂM
+-- tốn thêm tài nguyên lưu trữ 
+-- Question 1: Tạo view có chứa danh sách nhân viên thuộc phòng ban sale 
+CREATE OR REPLACE VIEW vw_SaleAccountList AS
+SELECT a.*, d.departmentName FROM  `Account` a
+JOIN Department d ON a.DepartmentID=d.DepartmentID
+WHERE a.DepartmentID=1;
+
+-- Question 2: Tạo view có chứa thông tin các account tham gia vào nhiều group nhất 
+-- CREATE OR REPLACE VIEW vw_group_max_mem AS 
+-- WITH cte_maxAccount AS(
+-- SELECT count(*) ma FROM `GroupAccount`
+-- GROUP BY GroupID
+-- )
+-- SELECT a.*,ga.GroupID, count(*) FROM `Account` a
+-- JOIN `GroupAccount` ga ON ga.AccountID=a.AccountID
+-- GROUP BY GroupID
+-- HAVING count(*) = (SELECT max(ma) FROM cte_maxAccount); => GROUP BY THEO GROUP ID, NHƯNG KO THEO YÊU CẦU ĐỀ BÀI
+
+CREATE OR REPLACE VIEW vw_group_max_mem AS 
+WITH cte_maxAccount AS(
+SELECT count(*) ma FROM `GroupAccount`
+GROUP BY AccountID
+)
+SELECT a.*,ga.GroupID, count(*) amount FROM `GroupAccount` ga
+JOIN `Account` a ON ga.AccountID=a.AccountID
+GROUP BY AccountID
+HAVING count(*) = (SELECT max(ma) FROM cte_maxAccount);
+
+-- stored procedure (sp)
+-- tạo 1 sp lấy danh sách account
+
+-- ## CẤU TRÚC ĐỂ TẠO 1 STORED PROCEDURE
+DROP PROCEDURE IF EXISTS sp_getListAccount; 
+
+DELIMITER $$
+CREATE PROCEDURE sp_getListAccount()
+BEGIN
+	SELECT * FROM `Account`; -- CÂU LỆNH MUỐN THỰC HIỆN
+END$$
+DELIMITER ;
+-- ##
+-- SAU KHI TẠO PROCEDURE, NẾU MUỐN GỌI DỮ LIỆU ĐỂ DÙNG THÌ DÙNG CÂU LỆNH CALL
+CALL sp_getListAccount;
+
+-- NẾU MUỐN XÓA PROCEDURE ĐÃ TẠO
+
+-- TẠO DANH SÁCH LẤY ACCOUNT CÓ ID = 2
+
+## CẤU TRÚC ĐỂ TẠO 1 STORED PROCEDURE MÀ CÓ THAM SỐ THAY ĐỔI (như lấy account có account ID= 2,3,4...
+
+-- DROP PROCEDURE IF EXISTS sp_getListAccount (IN fieldname có tham số thay đổi DATATYPE ; (NẾU MUỐN XÓA 
+
+-- DELIMITER $$
+-- CREATE PROCEDURE sp_getListAccount()
+-- BEGIN
+-- 	SELECT * FROM `Account` WHERE điều kiện = tên fieldname lựa chọn phía trên; -- CÂU LỆNH MUỐN THỰC HIỆN
+-- END$$
+-- DELIMITER ;
+-- ##
+
+DROP PROCEDURE IF EXISTS sp_getListAccount_1; -- (NẾU MUỐN XÓA )
+
+DELIMITER $$
+CREATE PROCEDURE sp_getListAccount_1(IN in_AccountID TINYINT)
+BEGIN
+	SELECT * FROM `Account`WHERE AccountID=in_AccountID; -- CÂU LỆNH MUỐN THỰC HIỆN
+END$$
+DELIMITER ;
+
+CALL sp_getListAccount_1 (3);
+CALL sp_getListAccount_1 (5);
+
+DROP PROCEDURE IF EXISTS sp_insertListAccount; 
+
+DELIMITER $$
+CREATE PROCEDURE sp_insertListAccount(
+IN p_email VARCHAR(150),
+IN p_Username NVARCHAR(150),
+IN p_FullName NVARCHAR(200),
+IN p_DepartmentID TINYINT,
+IN p_PositionID TINYINT
+)
+BEGIN
+	INSERT INTO `Account` (Email,Username,FullName,DepartmentID,PositionID)
+    VALUES (p_Email, p_Username, p_FullName, p_DepartmentID, p_PositionID);
+    
+END$$
+DELIMITER ;
+
+CALL sp_insertListAccount (
+'vanlam123@mail.com', 
+'Vanlam',
+'Nguyễn Văn Lâm',
+2,
+1);
+-- nếu muốn inser thêm thì chỉnh sửa thông tin tiếp tục tại câu call ở trên mà không cần phải viết lại
+
+-- xóa tài khoảng người dùng theo ID
+
+DROP PROCEDURE IF EXISTS sp_DeletListAccount; 
+
+DELIMITER $$
+CREATE PROCEDURE sp_DeletListAccount(
+IN in_accountID TINYINT UNSIGNED
+)
+BEGIN
+DELETE FROM `Account` WHERE AccountID = in_accountID;
+    
+END$$
+DELIMITER ;
+
+CALL sp_DeletListAccount (11);
+
+-- tạo store để người dùng nhập vào tên phòng ban và in ra tất cả các account thuộc phòng ban đó
+
+SELECT * FROM Department;
+SELECT * FROM Position;
+SELECT * FROM `Account`;
+SELECT * FROM `Group`;
+SELECT * FROM `GroupAccount`;
+SELECT * FROM TypeQuestion;
+SELECT * FROM CategoryQuestion;
+SELECT * FROM Question;
+SELECT * FROM Answer;
+SELECT * FROM Exam;
+SELECT * FROM ExamQuestion;
+
+
+
+DROP PROCEDURE IF EXISTS sp_ListDepartment; 
+
+DELIMITER $$
+CREATE PROCEDURE sp_ListDepartment(
+IN in_DepartmentName NVARCHAR(200)
+)
+BEGIN
+SELECT * FROM Department p
+JOIN `Account` a ON a.DepartmentID=p.DepartmentID
+WHERE p.DepartmentName= in_DepartmentName;
+    
+END$$
+DELIMITER ;
+
+CALL sp_ListDepartment('Kỹ thuật');
