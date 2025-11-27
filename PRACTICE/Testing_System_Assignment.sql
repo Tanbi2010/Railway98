@@ -25,7 +25,7 @@ CREATE TABLE `Account` (
     FullName NVARCHAR(150) NOT NULL,
     DepartmentID TINYINT UNSIGNED NOT NULL,
     PositionID TINYINT UNSIGNED NOT NULL,
-    CreateDate DATETIME DEFAULT NOW (),
+    CreateDate DATETIME DEFAULT NOW(),
     FOREIGN KEY (DepartmentID)
         REFERENCES Department (DepartmentID)
         ON DELETE CASCADE,
@@ -119,7 +119,7 @@ CREATE TABLE Exam (
     CategoryID TINYINT UNSIGNED NOT NULL,
     Duration TINYINT UNSIGNED NOT NULL,
     CreatorID TINYINT UNSIGNED NOT NULL,
-    CreateDate DATETIME DEFAULT NOW (),
+    CreateDate DATETIME DEFAULT NOW(),
     FOREIGN KEY (CategoryID)
         REFERENCES CategoryQuestion (CategoryID)
         ON DELETE CASCADE,
@@ -655,7 +655,22 @@ SELECT * FROM Exam;
 SELECT * FROM ExamQuestion;
 
 
+use `testing_system_assignment_1`; 
 
+DELIMITER $$
+CREATE PROCEDURE sp_insertListAccount(
+IN p_email VARCHAR(150),
+IN p_Username NVARCHAR(150),
+IN p_FullName NVARCHAR(200),
+IN p_DepartmentID TINYINT,
+IN p_PositionID TINYINT
+)
+BEGIN
+	INSERT INTO `Account` (Email,Username,FullName,DepartmentID,PositionID)
+    VALUES (p_Email, p_Username, p_FullName, p_DepartmentID, p_PositionID);
+    
+END$$
+DELIMITER ;
 DROP PROCEDURE IF EXISTS sp_ListDepartment; 
 
 DELIMITER $$

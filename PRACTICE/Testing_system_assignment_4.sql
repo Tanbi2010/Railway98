@@ -270,11 +270,29 @@ VALUES
 					(	10	,		8		); 
 
 --  Question 1: Viết lệnh để lấy ra danh sách nhân viên và thông tin phòng ban của họ
-
+SELECT 
+    *
+FROM
+    `Account` a
+        JOIN
+    Department d ON a.DepartmentID = d.DepartmentID;
 -- Question 2: Viết lệnh để lấy ra thông tin các account được tạo sau ngày 20/12/2010
+SELECT 
+    *
+FROM
+    `Account` a
+        JOIN
+    Department d ON a.DepartmentID = d.DepartmentID
+        JOIN
+    Position p ON p.PositionID = a.PositionID
+WHERE
+    CreateDate > 2010 - 12 - 20;
 
+-- Question 3: Viết lệnh để lấy ra tất cả các developer 
+SELECT p.PositionID, p.PositionName, a.FullName, a.Email FROM Position p
+JOIN `Account` a ON a.PositionID=p.PositionID
+WHERE p.PositionID=1;
 
--- Question 3: Viết lệnh để lấy ra tất cả các developer  
 SELECT * FROM Department;
 SELECT * FROM Position;
 SELECT * FROM `Account`;
@@ -287,10 +305,11 @@ SELECT * FROM Answer;
 SELECT * FROM Exam;
 SELECT * FROM ExamQuestion;
 
-
-
 -- Question 4: Viết lệnh để lấy ra danh sách các phòng ban có >=3 nhân viên 
-
+SELECT d.DepartmentName, count(*) FROM `Account` a
+JOIN Department d ON a.DepartmentID=d.DepartmentID
+GROUP BY  a.DepartmentID
+HAVING count(*) >=3;
 
 -- Question 5: Viết lệnh để lấy ra danh sách câu hỏi được sử dụng trong đề thi nhiều nhất 
 
@@ -299,4 +318,5 @@ SELECT * FROM ExamQuestion;
 
 
 -- Question 7: Thông kê mỗi Question được sử dụng trong bao nhiêu Exam
+
 
