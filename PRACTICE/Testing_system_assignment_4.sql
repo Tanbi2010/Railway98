@@ -270,16 +270,9 @@ VALUES
 					(	10	,		8		); 
 
 --  Question 1: Viết lệnh để lấy ra danh sách nhân viên và thông tin phòng ban của họ
-SELECT * FROM `Account`;
-
-SELECT * FROM `Account` a
-INNER JOIN Department d ON d.DepartmentID= a.DepartmentID;
 
 -- Question 2: Viết lệnh để lấy ra thông tin các account được tạo sau ngày 20/12/2010
-SELECT * FROM `Account` a
-JOIN Department d ON d.DepartmentID= a.DepartmentID
-JOIN Position p ON p.PositionID=a.PositionID
-WHERE CreateDate > 20/12/2010;
+
 
 -- Question 3: Viết lệnh để lấy ra tất cả các developer  
 SELECT * FROM Department;
@@ -294,38 +287,16 @@ SELECT * FROM Answer;
 SELECT * FROM Exam;
 SELECT * FROM ExamQuestion;
 
-SELECT * FROM `GroupAccount` ga
-INNER JOIN `Account` a ON a.AccountID= ga.AccountID
-WHERE GroupID=2;
 
-SELECT * FROM `Account` a
-INNER JOIN `Position` p ON p.PositionID = a.PositionID
-WHERE a.PositionID=1;
 
 -- Question 4: Viết lệnh để lấy ra danh sách các phòng ban có >=3 nhân viên 
-SELECT a.DepartmentID, count(*), d.DepartmentName  FROM `Account` a
-INNER JOIN Department d ON d.DepartmentID= a.DepartmentID
-GROUP BY a.DepartmentID HAVING count(*) >=3;
+
 
 -- Question 5: Viết lệnh để lấy ra danh sách câu hỏi được sử dụng trong đề thi nhiều nhất 
-WITH CTE_QUESTION_MAX AS(
-SELECT count(*) slquest FROM ExamQuestion a
-GROUP BY a.QuestionID
-)
-SELECT ex.QuestionID,count(*) FROM ExamQuestion ex 
-INNER JOIN Question q ON q.QuestionID = ex.QuestionID
-GROUP BY ex.QuestionID HAVING count(*)= (SELECT max(slquest) FROM CTE_QUESTION_MAX);
+
 
 -- Question 6: Thông kê mỗi category Question được sử dụng trong bao nhiêu Question
-SELECT cq.CategoryID, cq.CategoryName, count(cq.CategoryID) times FROM CategoryQuestion cq
-LEFT JOIN Question q ON q.CategoryID = cq.CategoryID
-GROUP BY cq.CategoryID;
+
 
 -- Question 7: Thông kê mỗi Question được sử dụng trong bao nhiêu Exam
-SELECT q.QuestionID, q.Content, count(e.QuestionID) times FROM ExamQuestion e
-RIGHT JOIN Question q ON q.QuestionID = e.QuestionID
-GROUP BY e.QuestionID;
 
-SELECT q.QuestionID, q.Content , count(eq.QuestionID) FROM examquestion eq
-RIGHT JOIN question q ON q.QuestionID = eq.QuestionID
-GROUP BY q.QuestionID;

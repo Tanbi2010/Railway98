@@ -4,124 +4,143 @@ USE Testing_System_Assignment_1;
 -- create Table 1 Department
 DROP TABLE IF EXISTS Department;
 CREATE TABLE Department (
-DepartmentID 			TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-DepartmentName			NVARCHAR(150) UNIQUE KEY NOT NULL
+    DepartmentID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    DepartmentName NVARCHAR(150) UNIQUE KEY NOT NULL
 );
 
 
 -- create table 2 position
 DROP TABLE IF EXISTS Position;
 CREATE TABLE Position (
-PositionID				TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-PositionName			NVARCHAR(200)  NOT NULL
+    PositionID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    PositionName NVARCHAR(200) NOT NULL
 );
 
 -- create table 3 account
 DROP TABLE IF EXISTS `Account`;
 CREATE TABLE `Account` (
-AccountID 				TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-Email					VARCHAR(150) UNIQUE KEY NOT NULL,
-Username  				NVARCHAR(50) UNIQUE KEY NOT NULL,
-FullName  				NVARCHAR(150) NOT NULL,
-DepartmentID 			TINYINT UNSIGNED NOT NULL,
-PositionID				TINYINT UNSIGNED NOT NULL,
-CreateDate				DATETIME DEFAULT NOW(),
-
-FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID) ON DELETE CASCADE,
-FOREIGN KEY (PositionID)	REFERENCES `Position`(PositionID) ON DELETE CASCADE
+    AccountID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Email VARCHAR(150) UNIQUE KEY NOT NULL,
+    Username NVARCHAR(50) UNIQUE KEY NOT NULL,
+    FullName NVARCHAR(150) NOT NULL,
+    DepartmentID TINYINT UNSIGNED NOT NULL,
+    PositionID TINYINT UNSIGNED NOT NULL,
+    CreateDate DATETIME DEFAULT NOW (),
+    FOREIGN KEY (DepartmentID)
+        REFERENCES Department (DepartmentID)
+        ON DELETE CASCADE,
+    FOREIGN KEY (PositionID)
+        REFERENCES `Position` (PositionID)
+        ON DELETE CASCADE
 );
 
 -- create Table 4 group
 DROP TABLE IF EXISTS `Group`;
-CREATE TABLE  `Group` (
-GroupID					TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-GroupName				NVARCHAR(150) UNIQUE KEY NOT NULL,
-CreatorID				TINYINT UNSIGNED NOT NULL,
-CreateDate				DATETIME DEFAULT NOW(),
-
-FOREIGN KEY (CreatorID) REFERENCES `Account`(AccountID) ON DELETE CASCADE
+CREATE TABLE `Group` (
+    GroupID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    GroupName NVARCHAR(150) UNIQUE KEY NOT NULL,
+    CreatorID TINYINT UNSIGNED NOT NULL,
+    CreateDate DATETIME DEFAULT NOW(),
+    FOREIGN KEY (CreatorID)
+        REFERENCES `Account` (AccountID)
+        ON DELETE CASCADE
 );
 
 -- create table 5 GroupAccount
 DROP TABLE IF EXISTS GroupAccount;
 CREATE TABLE GroupAccount (
-GroupID 				TINYINT UNSIGNED NOT NULL,
-AccountID				TINYINT UNSIGNED NOT NULL,
-JoinDate				DATETIME DEFAULT NOW(),
-
-PRIMARY KEY(GroupID,AccountID),
-FOREIGN KEY (GroupID) REFERENCES `Group`(GroupID) ON DELETE CASCADE,
-FOREIGN KEY (AccountID) REFERENCES `Account`(AccountID) ON DELETE CASCADE
+    GroupID TINYINT UNSIGNED NOT NULL,
+    AccountID TINYINT UNSIGNED NOT NULL,
+    JoinDate DATETIME DEFAULT NOW(),
+    PRIMARY KEY (GroupID , AccountID),
+    FOREIGN KEY (GroupID)
+        REFERENCES `Group` (GroupID)
+        ON DELETE CASCADE,
+    FOREIGN KEY (AccountID)
+        REFERENCES `Account` (AccountID)
+        ON DELETE CASCADE
 );
 
 -- Create table 6 TypeQuestion
 DROP TABLE IF EXISTS TypeQuestion;
 CREATE TABLE TypeQuestion (
-TypeID					TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-TypeName				ENUM('Essay', 'Multiple-Choice') NOT NULL
+    TypeID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    TypeName ENUM('Essay', 'Multiple-Choice') NOT NULL
 );
 
 -- create table 7 CategoryQuestion
 DROP TABLE IF EXISTS CategoryQuestion;
 CREATE TABLE CategoryQuestion (
-CategoryID				TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-CategoryName			NVARCHAR(200) NOT NULL
+    CategoryID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    CategoryName NVARCHAR(200) NOT NULL
 );
 
 
 -- create table 8 Question 
 DROP TABLE IF EXISTS Question;
 CREATE TABLE Question (
-QuestionID				TINYINT UNSIGNED AUTO_INCREMENT,
-Content					TEXT NOT NULL,
-CategoryID				TINYINT UNSIGNED NOT NULL,
-TypeID					TINYINT UNSIGNED NOT NULL,
-CreatorID				TINYINT UNSIGNED NOT NULL,
-CreateDate				DATETIME DEFAULT NOW(),
-
-PRIMARY KEY (QuestionID,CategoryID,TypeID),
-FOREIGN KEY (CategoryID)	REFERENCES CategoryQuestion(CategoryID) 	ON DELETE CASCADE,
-FOREIGN KEY (TypeID) 		REFERENCES TypeQuestion(TypeID) 	ON DELETE CASCADE,
-FOREIGN KEY (CreatorID) 	REFERENCES `Account`(AccountID) 	ON DELETE CASCADE
+    QuestionID TINYINT UNSIGNED AUTO_INCREMENT,
+    Content TEXT NOT NULL,
+    CategoryID TINYINT UNSIGNED NOT NULL,
+    TypeID TINYINT UNSIGNED NOT NULL,
+    CreatorID TINYINT UNSIGNED NOT NULL,
+    CreateDate DATETIME DEFAULT NOW(),
+    PRIMARY KEY (QuestionID , CategoryID , TypeID),
+    FOREIGN KEY (CategoryID)
+        REFERENCES CategoryQuestion (CategoryID)
+        ON DELETE CASCADE,
+    FOREIGN KEY (TypeID)
+        REFERENCES TypeQuestion (TypeID)
+        ON DELETE CASCADE,
+    FOREIGN KEY (CreatorID)
+        REFERENCES `Account` (AccountID)
+        ON DELETE CASCADE
 );
 
 -- create table 9 Answer
 DROP TABLE IF EXISTS Answer;
-CREATE TABLE Answer(
-AnswerID				TINYINT UNSIGNED AUTO_INCREMENT,
-Content					TEXT NOT NULL,
-QuestionID				TINYINT UNSIGNED NOT NULL,
-isCorrect				BOOLEAN DEFAULT 1,
-
-PRIMARY KEY (AnswerID,QuestionID),
-FOREIGN KEY (QuestionID) 	REFERENCES Question(QuestionID)		ON DELETE CASCADE
+CREATE TABLE Answer (
+    AnswerID TINYINT UNSIGNED AUTO_INCREMENT,
+    Content TEXT NOT NULL,
+    QuestionID TINYINT UNSIGNED NOT NULL,
+    isCorrect BOOLEAN DEFAULT 1,
+    PRIMARY KEY (AnswerID , QuestionID),
+    FOREIGN KEY (QuestionID)
+        REFERENCES Question (QuestionID)
+        ON DELETE CASCADE
 );
 
 -- create table 10 Exam
 DROP TABLE IF EXISTS Exam;
-CREATE TABLE  Exam (
-ExamID					TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-`Code`					NVARCHAR(200) NOT NULL UNIQUE KEY,
-Title 					NVARCHAR(200) NOT NULL,
-CategoryID				TINYINT UNSIGNED NOT NULL,
-Duration				TINYINT UNSIGNED NOT NULL,
-CreatorID				TINYINT UNSIGNED NOT NULL,
-CreateDate				DATETIME DEFAULT NOW(),
-
-FOREIGN KEY (CategoryID)	REFERENCES CategoryQuestion(CategoryID) ON DELETE CASCADE,
-FOREIGN KEY (CreatorID)		REFERENCES `Account`(AccountID) 		ON DELETE CASCADE
+CREATE TABLE Exam (
+    ExamID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `Code` NVARCHAR(200) NOT NULL UNIQUE KEY,
+    Title NVARCHAR(200) NOT NULL,
+    CategoryID TINYINT UNSIGNED NOT NULL,
+    Duration TINYINT UNSIGNED NOT NULL,
+    CreatorID TINYINT UNSIGNED NOT NULL,
+    CreateDate DATETIME DEFAULT NOW (),
+    FOREIGN KEY (CategoryID)
+        REFERENCES CategoryQuestion (CategoryID)
+        ON DELETE CASCADE,
+    FOREIGN KEY (CreatorID)
+        REFERENCES `Account` (AccountID)
+        ON DELETE CASCADE
 );
 
 
 -- create table 11  ExamQuestion
 DROP TABLE IF EXISTS ExamQuestion;
 CREATE TABLE ExamQuestion (
-ExamID					TINYINT UNSIGNED NOT NULL,
-QuestionID				TINYINT UNSIGNED NOT NULL,
-
-PRIMARY KEY(ExamID,QuestionID),
-FOREIGN KEY (ExamID)		REFERENCES Exam(ExamID) 			ON DELETE CASCADE,
-FOREIGN KEY (QuestionID)	REFERENCES Question(QuestionID) 	ON DELETE CASCADE
+    ExamID TINYINT UNSIGNED NOT NULL,
+    QuestionID TINYINT UNSIGNED NOT NULL,
+    PRIMARY KEY (ExamID , QuestionID),
+    FOREIGN KEY (ExamID)
+        REFERENCES Exam (ExamID)
+        ON DELETE CASCADE,
+    FOREIGN KEY (QuestionID)
+        REFERENCES Question (QuestionID)
+        ON DELETE CASCADE
 );
 
 
@@ -306,9 +325,10 @@ SELECT * FROM `Account` WHERE 'D%o';
 DELETE FROM Exam WHERE CreateDate < '2019/12/20'; 
 
 -- Question 13: Xóa tất cả các question có nội dung bắt đầu bằng từ "câu hỏi" 
-DELETE FROM Question WHERE Content LIKE 'Câu hỏi%';
-
--- Question 14: Update thông tin của account có id = 5 thành tên "Nguyễn Bá Lộc" và  email thành loc.nguyenba@vti.com.vn
+DELETE FROM Question 
+WHERE
+    Content LIKE 'Câu hỏi%'； 
+-- Update thông tin của account có id = 5 thành tên "Nguyễn Bá Lộc" và  email thành loc.nguyenba@vti.com.vn
 -- SELECT * FROM `Account`;
 UPDATE  `Account` 
 SET FullName = 'Nguyễn Bá Lộc', Email = 'loc.nguyenba@vti.com.vn'
@@ -651,3 +671,6 @@ END$$
 DELIMITER ;
 
 CALL sp_ListDepartment('Kỹ thuật');
+
+
+
