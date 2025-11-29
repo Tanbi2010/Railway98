@@ -716,7 +716,8 @@ SELECT FullName INTO out_FullName FROM `Account`  -- THÊM INTO VÀO SAU SELECT 
 WHERE AccountID= in_AccountID;
     
 END$$
-DELIMITER ;sp_getFullname
+DELIMITER ;
+
 -- khai báo biến để lưu trữ dữ liệu đầu ra
 SET @v_FullName=" ";
 CALL sp_getFullname (3,@v_FullName);  
@@ -779,13 +780,15 @@ BEGIN
     DECLARE number1 INT;
     DECLARE number2 INT DEFAULT 10;  -- number = 10
     
-    -- Thay đổi giá trị của biến
+   
+END$$
+DELIMITER ;
+ -- Thay đổi giá trị của biến
+    
     SET number1 = 20;  -- number =20
     SELECT 50 INTO number2;  
     
     SELECT number1, number2;
-END$$
-DELIMITER ;
 
 CALL sp_testVariable();
 -- SELECT number1, number2; KHÔNG RA KẾT QUẢ VÌ CHỈ SỬ DỤNG TRONG LOCAL (STORED PROCEDURE)

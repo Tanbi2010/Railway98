@@ -1,4 +1,4 @@
-DROP DATABASE IF EXISTS Testing_System_Assignment_44;
+DROP DATABASE IF EXISTS Testing_System_Assignment_4;
 CREATE DATABASE Testing_System_Assignment_4;
 USE Testing_System_Assignment_4;
 -- create Table 1 Department
@@ -310,13 +310,36 @@ SELECT d.DepartmentName, count(*) FROM `Account` a
 JOIN Department d ON a.DepartmentID=d.DepartmentID
 GROUP BY  a.DepartmentID
 HAVING count(*) >=3;
+USE `testing_system_assignment_4`;
+-- Question 1: Tạo view có chứa danh sách nhân viên thuộc phòng ban sale 
+CREATE OR REPLACE VIEW Saleaccount AS
+SELECT * FROM `Account` 
+WHERE DepartmentID=1;
 
--- Question 5: Viết lệnh để lấy ra danh sách câu hỏi được sử dụng trong đề thi nhiều nhất 
+-- Question 2: Tạo view có chứa thông tin các account tham gia vào nhiều group nhất  
+CREATE OR REPLACE VIEW max_account AS
+WITH cte_max_join_account AS (
+SELECT count(*) mja FROM `GroupAccount`
+GROUP BY AccountID
+)
+SELECT a.* FROM `GroupAccount` ga
+JOIN `Account` a ON a.AccountID=ga.AccountID
+GROUP BY ga.AccountID
+HAVING count(*)= (SELECT (mja) FROM cte_max_join_account);
 
+-- Question 4: Tạo view có chứa danh sách các phòng ban có nhiều nhân viên nhất 
+CREATE OR REPLACE VIEW Dp_max_acc AS
+WITH cte_dp_max_acc  AS(
+SELECT count(*) max_acc FROM  `Account`
+GROUP BY DepartmentID
+)
+SELECT a.*,d.DepartmentName FROM `Account` a
+JOIN Department d ON a.DepartmentID=d.DepartmentID
+GROUP BY a.DepartmentID
+HAVING count(*)= (SELECT max(max_acc) FROM cte_dp_max_acc);
 
--- Question 6: Thông kê mỗi category Question được sử dụng trong bao nhiêu Question
-
-
--- Question 7: Thông kê mỗi Question được sử dụng trong bao nhiêu Exam
-
-
+-- Question 5: Tạo view có chứa tất các các câu hỏi do user họ Nguyễn tạo 
+CREATE OR REPLACE VIEW v_question_Nguyen AS
+SELECT a.AccountID, q.Content FROM `Account` a
+JOIN Question q ON q.CreatorID= a.AccountID
+WHERE substring_index(FullName,'',1)='Nguyễn';
