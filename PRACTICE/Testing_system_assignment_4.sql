@@ -293,18 +293,6 @@ SELECT p.PositionID, p.PositionName, a.FullName, a.Email FROM Position p
 JOIN `Account` a ON a.PositionID=p.PositionID
 WHERE p.PositionID=1;
 
-SELECT * FROM Department;
-SELECT * FROM Position;
-SELECT * FROM `Account`;
-SELECT * FROM `Group`;
-SELECT * FROM `GroupAccount`;
-SELECT * FROM TypeQuestion;
-SELECT * FROM CategoryQuestion;
-SELECT * FROM Question;
-SELECT * FROM Answer;
-SELECT * FROM Exam;
-SELECT * FROM ExamQuestion;
-
 -- Question 4: Viết lệnh để lấy ra danh sách các phòng ban có >=3 nhân viên 
 SELECT d.DepartmentName, count(*) FROM `Account` a
 JOIN Department d ON a.DepartmentID=d.DepartmentID
@@ -340,6 +328,29 @@ HAVING count(*)= (SELECT max(max_acc) FROM cte_dp_max_acc);
 
 -- Question 5: Tạo view có chứa tất các các câu hỏi do user họ Nguyễn tạo 
 CREATE OR REPLACE VIEW v_question_Nguyen AS
-SELECT a.AccountID, q.Content FROM `Account` a
-JOIN Question q ON q.CreatorID= a.AccountID
-WHERE substring_index(FullName,'',1)='Nguyễn';
+    SELECT 
+        a.AccountID, q.Content
+    FROM
+        `Account` a
+            JOIN
+        Question q ON q.CreatorID = a.AccountID
+    WHERE
+        SUBSTRING_INDEX(a.FullName, ' ', 1) = 'Nguyễn'
+        ;
+SELECT * FROM v_question_Nguyen ;
+
+-- ASSIGNMENT 6
+
+
+
+SELECT * FROM Department;
+SELECT * FROM Position;
+SELECT * FROM `Account`;
+SELECT * FROM `Group`;
+SELECT * FROM `GroupAccount`;
+SELECT * FROM TypeQuestion;
+SELECT * FROM CategoryQuestion;
+SELECT * FROM Question;
+SELECT * FROM Answer;
+SELECT * FROM Exam;
+SELECT * FROM ExamQuestion;

@@ -639,18 +639,6 @@ CALL sp_DeletListAccount (11);
 
 -- tạo store để người dùng nhập vào tên phòng ban và in ra tất cả các account thuộc phòng ban đó
 
-SELECT * FROM Department;
-SELECT * FROM Position;
-SELECT * FROM `Account`;
-SELECT * FROM `Group`;
-SELECT * FROM `GroupAccount`;
-SELECT * FROM TypeQuestion;
-SELECT * FROM CategoryQuestion;
-SELECT * FROM Question;
-SELECT * FROM Answer;
-SELECT * FROM Exam;
-SELECT * FROM ExamQuestion;
-
 
 use `testing_system_assignment_1`; 
 
@@ -845,3 +833,60 @@ select f_countday(1) as amount;
  -- Tạo store để trả ra id của type question có nhiều câu hỏi nhất 
 SELECT * FROM TypeQuestion;
 SELECT * FROM Question;
+
+-- 29/11/2025
+-- TRIGGER
+DROP TRIGGER IF EXISTS trg_bf_Account;
+DELIMITER $$   
+CREATE TRIGGER trg_bf_Account
+BEFORE INSERT ON `Account`  -- BEFORE INSERT/UPDATE/DELET ON trg_bf_insertDepartment/ AFTER INSERT/UPDATE/DELET ON trg_bf_insertDepartment
+FOR EACH ROW
+BEGIN   
+DECLARE v_count_account SMALLINT DEFAULT 0;
+SELECT count(*) INTO v_count_account FROM `Account`;
+IF (v_count_account >= 15) THEN
+-- dừng chương trình
+SIGNAL SQLSTATE '12345'
+-- gửi thông báo
+SET MESSAGE_TEXT = 'Cant add more Account';
+END IF;
+END $$ 
+DELIMITER ;
+
+SHOW TRIGGERS;
+
+-- insert dữ liệu => báo lỗi thì số lượng bản ghi đang hơn 8, vì vậy ko thể add thêm (<10)
+INSERT INTO `Account` (Email,Username,FullName,DepartmentID,PositionID)
+VALUES ('danbi123@gmail.com', 'Username11', 'Lâm Thị R', 2, 3);
+
+-- viết trigger không cho phép xóa bản ghi có user là admin ở bảng account
+DROP TRIGGER IF EXISTS trg_delete_account;
+DELIMITER $$
+CREATE TRIGGER trg_delete_account
+BEFORE DELETE ON `Account`
+FOR EACH ROW
+BEGIN
+IF (Old.Fullname= 'admin') THEN
+-- dừng chương trình
+SIGNAL SQLSTATE '12345'
+-- gửi thông báo
+SET MESSAGE_TEXT = 'Cant delete Account';
+END IF;
+END $$ 
+DELIMITER ;
+SHOW TRIGGERS;
+
+DELETE FROM `Account` WHERE Fullname='admin';
+DELETE FROM `Account` WHERE AccountID=10;
+-- 
+SELECT * FROM Department;
+SELECT * FROM Position;
+SELECT * FROM `Account`;
+SELECT * FROM `Group`;
+SELECT * FROM `GroupAccount`;
+SELECT * FROM TypeQuestion;
+SELECT * FROM CategoryQuestion;
+SELECT * FROM Question;
+SELECT * FROM Answer;
+SELECT * FROM Exam;
+SELECT * FROM ExamQuestion;
