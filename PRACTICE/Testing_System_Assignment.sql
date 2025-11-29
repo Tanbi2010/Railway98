@@ -325,9 +325,6 @@ SELECT * FROM `Account` WHERE 'D%o';
 DELETE FROM Exam WHERE CreateDate < '2019/12/20'; 
 
 -- Question 13: Xóa tất cả các question có nội dung bắt đầu bằng từ "câu hỏi" 
-DELETE FROM Question 
-WHERE
-    Content LIKE 'Câu hỏi%'； 
 -- Update thông tin của account có id = 5 thành tên "Nguyễn Bá Lộc" và  email thành loc.nguyenba@vti.com.vn
 -- SELECT * FROM `Account`;
 UPDATE  `Account` 
@@ -671,6 +668,8 @@ BEGIN
     
 END$$
 DELIMITER ;
+
+
 DROP PROCEDURE IF EXISTS sp_ListDepartment; 
 
 DELIMITER $$
@@ -687,5 +686,159 @@ DELIMITER ;
 
 CALL sp_ListDepartment('Kỹ thuật');
 
+-- 27/11/2025
+
+-- lấy ra fullname của account theo accountID nhập vào
+DROP PROCEDURE IF EXISTS sp_getFullName; 
+
+DELIMITER $$
+CREATE PROCEDURE sp_getFullname(
+IN in_AccountID TINYINT UNSIGNED
+)
+BEGIN
+SELECT FullName FROM `Account` 
+WHERE AccountID= in_AccountID;
+    
+END$$
+DELIMITER ;
+
+CALL sp_getFullname (3);
+
+-- cách 2
+DROP PROCEDURE IF EXISTS sp_getFullName; 
+
+DELIMITER $$
+CREATE PROCEDURE sp_getFullname(
+IN in_AccountID TINYINT UNSIGNED, OUT out_FullName NVARCHAR(200)
+)
+BEGIN
+SELECT FullName INTO out_FullName FROM `Account`  -- THÊM INTO VÀO SAU SELECT (NỘI DUNG SAU INTO LÀ out_)
+WHERE AccountID= in_AccountID;
+    
+END$$
+DELIMITER ;sp_getFullname
+-- khai báo biến để lưu trữ dữ liệu đầu ra
+SET @v_FullName=" ";
+CALL sp_getFullname (3,@v_FullName);  
+SELECT @v_FullName;
+
+-- KHAI BÁO BIẾN TRONG MYSQL:
+SET @myName=" Danbi"; -- KHAI BÁO BIẾN
+SELECT @myName;
+-- NẾU MUỐN THAY ĐỔI DỮ LIỆU CỦA BIẾN ĐÃ SET, THÌ SỬ DỤNG SET ĐỂ UPDATE DỮ LIỆU LẠI VÀ CÁCH LÀM TƯƠNG TỰ
+SET @myName=" Kim Danbi";
+
+-- CÁCH 2
+SELECT FullName INTO @myName FROM `Account` WHERE AccountID=1;
+SELECT @myName;
 
 
+-- PHẠM VI SỬ DỤNG 
+-- KHAI BÁO BIẾN THEO SECTION
+
+
+-- KHAI BÁO BIẾN THEO STORED PROCEDURE
+DROP PROCEDURE IF EXISTS sp_getFullName; 
+
+DELIMITER $$
+CREATE PROCEDURE sp_getFullname(
+IN in_AccountID TINYINT UNSIGNED
+)
+BEGIN
+SELECT FullName FROM `Account` 
+WHERE AccountID= in_AccountID;
+    
+END$$
+DELIMITER ;
+
+
+-- Khai báo ra biến để lưu trữ dữ liệu đầu ra 
+SET @v_fullname = " ";
+
+CALL sp_getFullNameByAccountId(6,@v_fullname);
+
+SELECT @v_fullname;
+
+-- Khai báo biến, phạm vi sử dụng
+-- Sử dụng SET-- Khai báo biến theo Session
+SET @myName = "daonq";
+SELECT @myName;
+SET @myName = "Nguyễn Quang Đạo";
+SELECT @myName;
+-- 
+SELECT FullName INTO @myName FROM account WHERE AccountID = 1;
+SELECT @myName;
+
+-- Khai báo biến theo Local 
+
+DROP PROCEDURE IF EXISTS sp_testVariable;
+DELIMITER $$
+CREATE PROCEDURE sp_testVariable()
+BEGIN
+    -- khai báo biến ở đây, trong sp==> phạm vi Local
+    DECLARE number1 INT;
+    DECLARE number2 INT DEFAULT 10;  -- number = 10
+    
+    -- Thay đổi giá trị của biến
+    SET number1 = 20;  -- number =20
+    SELECT 50 INTO number2;  
+    
+    SELECT number1, number2;
+END$$
+DELIMITER ;
+
+CALL sp_testVariable();
+-- SELECT number1, number2; KHÔNG RA KẾT QUẢ VÌ CHỈ SỬ DỤNG TRONG LOCAL (STORED PROCEDURE)
+
+-- biến sử dụng cho toàn hệ thống
+SELECT @@version;
+
+-- biến hệ thống: sử dụng trong cấu hình của hệ thống
+-- function 
+SET GLOBAL log_bin_trust_function_creators = 1; 
+SELECT @@log_bin_trust_function_creators; -- giá trị ban đầu là 0 --> không cho phép tạo các function
+DROP FUNCTION IF EXISTS f_sum;
+DELIMITER $$   
+CREATE FUNCTION f_sum(number1 INT, number2 INT) RETURNS INT -- 1 giá trị
+BEGIN   
+DECLARE v_result INT;
+SET v_result = number1 + number2;	
+RETURN v_result;  
+END $$  
+
+SELECT f_sum(1,2) as Sum_result;
+
+-- viết hàm để lấy ra username từ email
+DROP FUNCTION IF EXISTS f_getusernamefromemail;
+DELIMITER $$   
+CREATE FUNCTION f_getusernamefromemail(p_email VARCHAR(100)) RETURNS VARCHAR(50) -- 1 giá trị
+BEGIN   
+DECLARE v_username VARCHAR(50);
+SET v_username = substring_index(p_email,'@',1); -- substring_index (string, delimiter, number)
+RETURN v_username;  
+END $$  
+select f_getusernamefromemail('danbi@gmail.com') as username;
+
+-- substring_index (string, delimiter, number) => dùng để lấy ra chuỗi con 
+-- (string: dữ liệu đầu vào, delimiter: điều kiện để lấy, number (theo số phần được chia ra: 1 (lấy chuỗi con đầu, 2 lấy đầu và giữa, 3 lấy 1,2,3)
+-- (-1, -2, -3...) thì đi theo chiều ngược lại: từ phải sang trái
+
+-- viết hàm để tính xem account đã được tạo bao nhiêu ngày
+DROP FUNCTION IF EXISTS f_countday;
+DELIMITER $$   
+CREATE FUNCTION f_countday(p_accountID TINYINT) RETURNS INT -- 1 giá trị
+BEGIN   
+DECLARE v_countday INT;
+SELECT datediff(NOW(), CreateDate ) INTO  v_countday FROM `Account` WHERE p_accountID=AccountID;
+RETURN v_countday;  
+END $$ 
+
+select f_countday(1) as amount;
+
+
+-- mở rộng: đưa 1 ngày nào đó (1/11/2025) 
+-- sau khi có kq ==> trả ra ID của typeQuestion và số lượng câu hỏi
+
+ -- Tạo store để trả ra id của type question có nhiều câu hỏi nhất 
+SELECT * FROM TypeQuestion;
+SELECT * FROM Question;
