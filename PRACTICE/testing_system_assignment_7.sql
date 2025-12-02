@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS Testing_System_Assignment_4;
-CREATE DATABASE Testing_System_Assignment_4;
-USE Testing_System_Assignment_4;
+DROP DATABASE IF EXISTS Testing_System_Assignment_7;
+CREATE DATABASE Testing_System_Assignment_7;
+USE Testing_System_Assignment_7;
 -- create Table 1 Department
 DROP TABLE IF EXISTS Department;
 CREATE TABLE Department (
@@ -268,220 +268,89 @@ VALUES
 					(	8	,		10		), 
 					(	9	,		9		), 
 					(	10	,		8		); 
+                    
 
---  Question 1: Viết lệnh để lấy ra danh sách nhân viên và thông tin phòng ban của họ
-SELECT 
-    *
-FROM
-    `Account` a
-        JOIN
-    Department d ON a.DepartmentID = d.DepartmentID;
--- Question 2: Viết lệnh để lấy ra thông tin các account được tạo sau ngày 20/12/2010
-SELECT 
-    *
-FROM
-    `Account` a
-        JOIN
-    Department d ON a.DepartmentID = d.DepartmentID
-        JOIN
-    Position p ON p.PositionID = a.PositionID
-WHERE
-    CreateDate > 2010 - 12 - 20;
-
--- Question 3: Viết lệnh để lấy ra tất cả các developer 
-SELECT p.PositionID, p.PositionName, a.FullName, a.Email FROM Position p
-JOIN `Account` a ON a.PositionID=p.PositionID
-WHERE p.PositionID=1;
-
--- Question 4: Viết lệnh để lấy ra danh sách các phòng ban có >=3 nhân viên 
-SELECT d.DepartmentName, count(*) FROM `Account` a
-JOIN Department d ON a.DepartmentID=d.DepartmentID
-GROUP BY  a.DepartmentID
-HAVING count(*) >=3;
-USE `testing_system_assignment_4`;
--- Question 1: Tạo view có chứa danh sách nhân viên thuộc phòng ban sale 
-CREATE OR REPLACE VIEW Saleaccount AS
-SELECT * FROM `Account` 
-WHERE DepartmentID=1;
-
--- Question 2: Tạo view có chứa thông tin các account tham gia vào nhiều group nhất  
-CREATE OR REPLACE VIEW max_account AS
-WITH cte_max_join_account AS (
-SELECT count(*) mja FROM `GroupAccount`
-GROUP BY AccountID
-)
-SELECT a.* FROM `GroupAccount` ga
-JOIN `Account` a ON a.AccountID=ga.AccountID
-GROUP BY ga.AccountID
-HAVING count(*)= (SELECT (mja) FROM cte_max_join_account);
-
--- Question 4: Tạo view có chứa danh sách các phòng ban có nhiều nhân viên nhất 
-CREATE OR REPLACE VIEW Dp_max_acc AS
-WITH cte_dp_max_acc  AS(
-SELECT count(*) max_acc FROM  `Account`
-GROUP BY DepartmentID
-)
-SELECT a.*,d.DepartmentName FROM `Account` a
-JOIN Department d ON a.DepartmentID=d.DepartmentID
-GROUP BY a.DepartmentID
-HAVING count(*)= (SELECT max(max_acc) FROM cte_dp_max_acc);
-
--- Question 5: Tạo view có chứa tất các các câu hỏi do user họ Nguyễn tạo 
-CREATE OR REPLACE VIEW v_question_Nguyen AS
-    SELECT 
-        a.AccountID, q.Content
-    FROM
-        `Account` a
-            JOIN
-        Question q ON q.CreatorID = a.AccountID
-    WHERE
-        SUBSTRING_INDEX(a.FullName, ' ', 1) = 'Nguyễn'
-        ;
-SELECT * FROM v_question_Nguyen ;
-
--- ASSIGNMENT 6 (tạo stored procedure)
--- Question 1: Tạo store để người dùng nhập vào tên phòng ban và in ra tất cả các account thuộc phòng ban đó 
-DROP PROCEDURE IF EXISTS sp_dp_acc;
-DELIMITER $$
-CREATE PROCEDURE sp_dp_acc( IN in_dp_name VARCHAR(150))
-BEGIN
-SELECT d.DepartmentName, a.* FROM Department d
-JOIN `Account` a ON a.DepartmentID=d.DepartmentID
-WHERE d.DepartmentName=in_dp_name;
-END $$
+DROP TRIGGER IF EXISTS trg_bf_Account;
+DELIMITER $$   
+CREATE TRIGGER trg_bf_Account
+BEFORE INSERT ON `Account` 
+FOR EACH ROW
+BEGIN   
+DECLARE v_count_account SMALLINT DEFAULT 0;
+SELECT count(*) INTO v_count_account FROM `Account`;
+IF (v_count_account >= 15) THEN
+-- dừng chương trình
+SIGNAL SQLSTATE '12345'
+-- gửi thông báo
+SET MESSAGE_TEXT = 'Cant add more Account';
+END IF;
+END $$ 
 DELIMITER ;
 
-CALL sp_dp_acc('Sale');
+SHOW TRIGGERS;
 
--- Question 2: Tạo store để in ra số lượng account trong mỗi group  
-DROP PROCEDURE IF EXISTS sp_group_account;
-DELIMITER $$
-CREATE PROCEDURE sp_group_account(IN in_group TINYINT)
-BEGIN
-SELECT ga.GroupID, a.* FROM `GroupAccount` ga
-JOIN `Account`a ON a.AccountID=ga.AccountID
-WHERE GroupID=in_group;
-END $$
-DELIMITER ;
-CALL sp_group_account(3);
-
--- Question 3: Tạo store để thống kê mỗi type question có bao nhiêu question được tạo trong tháng hiện tại 
-DROP PROCEDURE IF EXISTS sp_type_question_list; -- SP dùng để nhập từ group để hiển câu hỏi có tháng mà trùng với tháng hiện tại
-DELIMITER $$
-CREATE PROCEDURE sp_type_question_list (IN in_type TINYINT)
-BEGIN
-SELECT q.*, tq.TypeName FROM TypeQuestion tq
-JOIN Question q ON q.TypeID=tq.TypeID
-WHERE in_type=tq.TypeID AND month(q.CreateDate) = month(now()) AND year(Q.CreateDate)=year(now());
-END $$
+DROP TRIGGER IF EXISTS trg_;
+DELIMITER $$   
+CREATE TRIGGER trg_
+BEFORE INSERT ON ` ` 
+FOR EACH ROW
+BEGIN   
+-- DECLARE v_count_account SMALLINT DEFAULT 0;
+-- SELECT count(*) INTO v_count_account FROM `Account`;
+IF ('điều kiện') THEN
+-- dừng chương trình
+SIGNAL SQLSTATE '12345'
+-- gửi thông báo
+SET MESSAGE_TEXT = 'Cant add more Account';
+END IF;
+END $$ 
 DELIMITER ;
 
-CALL sp_type_question_list(1);
-
--- SP có câu hỏi được tạo trong tháng hiện tại
-DROP PROCEDURE IF EXISTS sp_currentmonth_question;
-DELIMITER $$
-CREATE PROCEDURE  sp_currentmonth_question()
-BEGIN
-SELECT tq.TypeID, tq.TypeName, q. QuestionID, q.Content, q.CreateDate,q.CreatorID FROM TypeQuestion tq
-JOIN Question q ON q.TypeID=tq.TypeID
-WHERE month(q.CreateDate)=month(now()) AND year(CreateDate)=year(now());
-END $$
+-- question 1: Tạo trigger không cho phép người dùng nhập vào Group có ngày tạo trước 1 năm trước
+DROP TRIGGER IF EXISTS trg_bfNoAllowInput;
+DELIMITER $$   
+CREATE TRIGGER trg_bfNoAllowInput
+BEFORE INSERT ON `Group` 
+FOR EACH ROW
+BEGIN   
+DECLARE v_inputCreateDate DATETIME ;
+SET v_inputCreateDate= date_sub(now(), interval 1 YEAR);
+IF (NEW.CreateDate < v_inputCreateDate) THEN
+-- dừng chương trình
+SIGNAL SQLSTATE '12345'
+-- gửi thông báo
+SET MESSAGE_TEXT = 'Cant add in the Group';
+END IF;
+END $$ 
 DELIMITER ;
-
-CALL sp_currentmonth_question;
-
-
--- Question 4: Tạo store để trả ra id của type question có nhiều câu hỏi nhất
-DROP PROCEDURE IF EXISTS sp_max_question_type;
-DELIMITER $$
-CREATE PROCEDURE sp_max_question_type()
-BEGIN
-WITH cte_max_type AS(
-SELECT TypeID, count(*) amount FROM Question GROUP BY TypeID
-)
-SELECT TypeID, count(*) amount FROM Question
-GROUP BY  TypeID
-HAVING count(*) = (SELECT max(amount) FROM cte_max_type);
-END $$
-DELIMITER ;
-CALL sp_max_question_type;
-
--- Question 5: Sử dụng store ở question 4 để tìm ra tên của type question
-DROP PROCEDURE IF EXISTS sp_typequestion_name;
-DELIMITER $$
-CREATE PROCEDURE sp_typequestion_name()
-BEGIN
-WITH cte_max_type AS(
-SELECT TypeID, count(*) amount FROM Question GROUP BY TypeID
-)
-SELECT q.TypeID, tq.TypeName amount FROM Question q
-JOIN TypeQuestion tq ON tq.TypeID= q.TypeID
-GROUP BY  TypeID
-HAVING count(*) = (SELECT max(amount) FROM cte_max_type);
-END $$
-DELIMITER ;
-CALL sp_typequestion_name;
-
--- Question 6: Viết 1 store cho phép người dùng nhập vào 1 chuỗi và trả về group có tên chứa chuỗi 
--- của người dùng nhập vào hoặc trả về user có username chứa chuỗi của người dùng nhập vào 
-DROP PROCEDURE IF EXISTS sp_inputStringgetdata;
-DELIMITER $$
-CREATE PROCEDURE sp_inputStringgetdata (
-IN in_string_var VARCHAR(50)
-)
-BEGIN
-SELECT GroupName FROM `Group` WHERE GroupName LIKE concat('%',in_string_var,'%')
-UNION
-SELECT Username FROM `Account` WHERE Username LIKE concat('%',in_string_var,'%');
-END $$
-DELIMITER ;
-
-CALL sp_inputStringgetdata('s');
-
--- cách 2:
-DROP PROCEDURE IF EXISTS sp_input_string_get_data;
-DELIMITER $$
-CREATE PROCEDURE sp_input_string_get_data(
-IN in_varstring VARCHAR(50)
-)
-BEGIN 
--- IF (in_varstring= '') THEN
--- SELECT g.GroupName FROM `group` g WHERE g.GroupName LIKE CONCAT("%",in_varstring,"%");
-IF EXISTS (SELECT 1 
-               FROM `group` 
-               WHERE GroupName LIKE CONCAT('%', in_varstring, '%')) THEN
-        
-        SELECT GroupName 
-        FROM `group`
-        WHERE GroupName LIKE CONCAT('%', in_varstring, '%');
-ELSE
-SELECT a.Username FROM `account` a WHERE a.Username LIKE CONCAT("%",in_varstring,"%");
-	END IF;
-END $$
-DELIMITER ;
-CALL sp_input_string_get_data('user');
+INSERT INTO `Group` (GroupName, CreatorID, CreateDate) 
+VALUES				
+					('VTI Sale 05', '2', '2016-04-10 00:00:00');
 
 
+DROP TRIGGER IF EXISTS trg_bf_createDate;
+-- DELIMITER $$   
+-- CREATE TRIGGER trg_bf_createDate
+-- BEFORE INSERT ON `Group`
+-- FOR EACH ROW
+-- BEGIN   
+-- DECLARE v_CreateDate DATETIME;
+-- SET v_CreateDate = date_sub(now(), interval 1 YEAR);
 
-DROP PROCEDURE IF EXISTS sp_getNameAccOrNameGroup;
-DELIMITER $$
-CREATE PROCEDURE sp_getNameAccOrNameGroup
-( IN var_String VARCHAR(50),
-  IN flag TINYINT
-)
-BEGIN
-	IF flag = 1 THEN
-    -- Đoạn này xử lý điều kiện để lấy tên group có tên trùng với chuỗi nhập vào
-		SELECT g.GroupName FROM `group` g WHERE g.GroupName LIKE CONCAT("%",var_String,"%");
-	ELSE
--- Đoạn này xử lý điều kiện khi flag !=1, khi đó sẽ tìm User mà Username có chữa chuỗi nhập vào.
-		SELECT a.Username FROM `account` a WHERE a.Username LIKE CONCAT("%",var_String,"%");
-	END IF;
-END$$
-DELIMITER ;
+-- IF (NEW.CreateDate < v_CreateDate) THEN
+-- -- dừng chương trình
+-- SIGNAL SQLSTATE '12345'
+-- -- gửi thông báo
+-- SET MESSAGE_TEXT = 'Cant add group';
+-- END IF;
+-- END $$ 
+-- DELIMITER ;
+-- SHOW TRIGGERS;
+-- INSERT INTO `Group` (GroupName, CreatorID, CreateDate) 
+-- VALUES				
+-- 					('VTI Sale 04', '1', '2018-04-10 00:00:00');
 
-Call sp_getNameAccOrNameGroup('s',1);
+
 
 
 SELECT * FROM Department;
@@ -496,64 +365,46 @@ SELECT * FROM Answer;
 SELECT * FROM Exam;
 SELECT * FROM ExamQuestion;
 
--- DROP PROCEDURE IF EXISTS sp_in_var_string;
--- DELIMITER $$
--- CREATE PROCEDURE sp_in_var_string(IN keyword VARCHAR(50))
--- BEGIN 
--- SELECT g.GroupName FROM `Group` g WHERE g.GroupName LIKE CONCAT('%', keyword,'%')
--- UNION
--- SELECT a.Username FROM `account` a WHERE a.Username LIKE CONCAT('%', keyword,'%');
--- END $$
--- dELIMITER ;
--- CALL sp_in_var_string('s');
-
-
-
--- Question 7: Viết 1 store cho phép người dùng nhập vào thông tin fullName, email và  
--- trong store sẽ tự động gán:  username sẽ giống email nhưng bỏ phần @..mail đi positionID: sẽ có default là developer 
--- departmentID: sẽ được cho vào 1 phòng chờ Sau đó in ra kết quả tạo thành công 
-DROP PROCEDURE IF EXISTS sp_insert_accountInfo;
+-- Tạo trigger Không cho phép người dùng thêm bất kỳ user nào vào department "Sale" nữa, khi thêm thì hiện ra thông báo "Department "Sale" cannot add more user" 
+DROP TRIGGER IF EXISTS trg_NoAcceptDptSale;
 DELIMITER $$
-CREATE PROCEDURE sp_insert_accountInfo(
-IN in_email VARCHAR(100),
-IN fullName NVARCHAR(100)
-)
-BEGIN 
-DECLARE v_username VARCHAR(50) DEFAULT substring_index(in_email,'@',1);
-DECLARE v_departmentID TINYINT UNSIGNED DEFAULT 4;
-DECLARE v_positionID TINYINT UNSIGNED DEFAULT 1;
-DECLARE v_createdate DATETIME DEFAULT NOW();
-INSERT INTO `account` 	(Email,		Username,	FullName,	DepartmentID,	PositionID,		CreateDate)
- VALUES 				(in_email,	v_username,	fullName,	v_departmentID,	v_positionID,	v_createdate);
-END $$
-dELIMITER ;
-CALL sp_insert_accountInfo('Thuy123@gmail.com', 'Nguyễn Hồng L');
-SELECT * FROM `account`;
+CREATE TRIGGER trg_NoAcceptDptSale
+BEFORE INSERT ON `Account`
+FOR EACH ROW
+BEGIN
 
--- DROP PROCEDURE IF EXISTS sp_insert_infoaccount;
--- DELIMITER $$
--- CREATE PROCEDURE sp_insert_infoaccount(
--- IN in_email VARCHAR(50),
--- IN in_Fullname NVARCHAR(150)
+-- WITH cte_departmentName AS(
+-- SELECT DepartmentName INTO v_dept FROM Department WHERE DepartmentID = 1
 -- )
--- BEGIN 
---  DECLARE v_username VARCHAR(50) DEFAULT substring_index(in_email,'@',1);
---  DECLARE v_PositionID TINYINT UNSIGNED DEFAULT 1;
---  DECLARE v_DepartmentID TINYINT UNSIGNED DEFAULT 4;
---  DECLARE v_CreateDate DATETIME DEFAULT now();
---  INSERT INTO `account` (Email,Username,FullName,DepartmentID,PositionID,CreateDate)
---  VALUES (in_email,v_username, in_Fullname,v_DepartmentID,v_PositionID,v_CreateDate);
--- END $$
--- DELIMITER ;
--- CALL sp_insert_infoaccount ('Danbi@gmail.com', 'Nguyễn Thị T');
-
-
-DROP PROCEDURE IF EXISTS sp_;
-DELIMITER $$
-CREATE PROCEDURE sp_()
-BEGIN 
-
+DECLARE v_dept VARCHAR(150);
+SELECT DepartmentName INTO v_dept FROM `Account` a
+JOIN  Department d ON d.DepartmentID=a.DepartmentID
+WHERE a.DepartmentID=1;
+IF  (NEW.DepartmentID= v_dept) THEN
+SIGNAL SQLSTATE '12345'
+SET MESSAGE_TEXT  = 'Department "Sale" cannot add more user';
+END IF;
 END $$
-dELIMITER ;
+DELIMITER ;
+INSERT INTO `testing_system_assignment_7`.`Account` (`Email`, `Username`, `FullName`, `DepartmentID`, `PositionID`, `CreateDate`) 
+VALUES ('Email11@gmail.com', 'Username11', 'Fullname11', '1', '2', '2020-04-09 00:00:00');
 
+DROP TRIGGER IF EXISTS trg_NoAcceptDptSale;
+DELIMITER $$   
+CREATE TRIGGER trg_NoAcceptDptSale
+BEFORE INSERT ON `Account`
+FOR EACH ROW
+BEGIN   
+DECLARE v_deptID NVARCHAR(150);
+SELECT DepartmentID INTO v_deptID FROM Department WHERE DepartmentName='Sale';
+IF (NEW.DepartmentID= v_deptID) THEN
+-- dừng chương trình
+SIGNAL SQLSTATE '12345'
+-- gửi thông báo
+SET MESSAGE_TEXT = 'Department "Sale" cannot add more user';
+END IF;
+END $$ 
+DELIMITER ;
+INSERT INTO `testing_system_assignment_7`.`Account` (`Email`, `Username`, `FullName`, `DepartmentID`, `PositionID`, `CreateDate`) 
+VALUES ('Email12@gmail.com', 'Username12', 'Fullname11', '1', '2', '2020-04-09 00:00:00');
 
